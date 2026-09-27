@@ -34,42 +34,43 @@ type NatPortForwardResourceModel struct {
 }
 
 // natPortForwardAPIResponse is the struct for unmarshaling OPNsense GET responses.
-// Uses dot-separated JSON keys matching the OPNsense DNat model's nested field structure.
+// source/destination come back as nested objects ({"source": {"network": ...}}),
+// matching the DNat model's field structure.
 type natPortForwardAPIResponse struct {
-	Disabled      string                   `json:"disabled"`
-	Interface     opnsense.SelectedMap     `json:"interface"`
-	IPProtocol    opnsense.SelectedMap     `json:"ipprotocol"`
-	Protocol      opnsense.SelectedMap     `json:"protocol"`
-	SourceNetwork string                   `json:"source.network"`
-	SourcePort    string                   `json:"source.port"`
-	SourceNot     string                   `json:"source.not"`
-	DestNetwork   string                   `json:"destination.network"`
-	DestPort      string                   `json:"destination.port"`
-	DestNot       string                   `json:"destination.not"`
-	Target        string                   `json:"target"`
-	LocalPort     string                   `json:"local-port"`
-	Log           string                   `json:"log"`
-	Description   string                   `json:"descr"`
-	Categories    opnsense.SelectedMapList `json:"categories"`
+	Disabled    string                   `json:"disabled"`
+	Interface   opnsense.SelectedMap     `json:"interface"`
+	IPProtocol  opnsense.SelectedMap     `json:"ipprotocol"`
+	Protocol    opnsense.SelectedMap     `json:"protocol"`
+	Source      natDNatEndpoint          `json:"source"`
+	Destination natDNatEndpoint          `json:"destination"`
+	Target      string                   `json:"target"`
+	LocalPort   string                   `json:"local-port"`
+	Log         string                   `json:"log"`
+	Description string                   `json:"descr"`
+	Categories  opnsense.SelectedMapList `json:"categories"`
 }
 
 // natPortForwardAPIRequest is the struct for marshaling OPNsense POST requests.
 type natPortForwardAPIRequest struct {
-	Disabled      string `json:"disabled"`
-	Interface     string `json:"interface"`
-	IPProtocol    string `json:"ipprotocol"`
-	Protocol      string `json:"protocol"`
-	SourceNetwork string `json:"source.network"`
-	SourcePort    string `json:"source.port"`
-	SourceNot     string `json:"source.not"`
-	DestNetwork   string `json:"destination.network"`
-	DestPort      string `json:"destination.port"`
-	DestNot       string `json:"destination.not"`
-	Target        string `json:"target"`
-	LocalPort     string `json:"local-port"`
-	Log           string `json:"log"`
-	Description   string `json:"descr"`
-	Categories    string `json:"categories"`
+	Disabled    string          `json:"disabled"`
+	Interface   string          `json:"interface"`
+	IPProtocol  string          `json:"ipprotocol"`
+	Protocol    string          `json:"protocol"`
+	Source      natDNatEndpoint `json:"source"`
+	Destination natDNatEndpoint `json:"destination"`
+	Target      string          `json:"target"`
+	LocalPort   string          `json:"local-port"`
+	Log         string          `json:"log"`
+	Description string          `json:"descr"`
+	Categories  string          `json:"categories"`
+}
+
+// natDNatEndpoint is the nested source/destination matcher object the DNat API
+// expects. network/port/not are the OPNsense field names for the nested object.
+type natDNatEndpoint struct {
+	Network string `json:"network"`
+	Port    string `json:"port"`
+	Not     string `json:"not"`
 }
 
 // toAPI converts the Terraform model to an API request struct.
@@ -83,21 +84,25 @@ func (m *NatPortForwardResourceModel) toAPI(ctx context.Context) *natPortForward
 	}
 
 	return &natPortForwardAPIRequest{
-		Disabled:      opnsense.BoolToString(!m.Enabled.ValueBool()), // Invert: enabled=true → disabled="0"
-		Interface:     m.Interface.ValueString(),
-		IPProtocol:    m.IPProtocol.ValueString(),
-		Protocol:      m.Protocol.ValueString(),
-		SourceNetwork: m.SourceNet.ValueString(),
-		SourcePort:    m.SourcePort.ValueString(),
-		SourceNot:     opnsense.BoolToString(m.SourceNot.ValueBool()),
-		DestNetwork:   m.DestinationNet.ValueString(),
-		DestPort:      m.DestinationPort.ValueString(),
-		DestNot:       opnsense.BoolToString(m.DestinationNot.ValueBool()),
-		Target:        m.Target.ValueString(),
-		LocalPort:     m.LocalPort.ValueString(),
-		Log:           opnsense.BoolToString(m.Log.ValueBool()),
-		Description:   m.Description.ValueString(),
-		Categories:    categoriesStr,
+		Disabled:   opnsense.BoolToString(!m.Enabled.ValueBool()), // Invert: enabled=true → disabled="0"
+		Interface:  m.Interface.ValueString(),
+		IPProtocol: m.IPProtocol.ValueString(),
+		Protocol:   m.Protocol.ValueString(),
+		Source: natDNatEndpoint{
+			Network: m.SourceNet.ValueString(),
+			Port:    m.SourcePort.ValueString(),
+			Not:     opnsense.BoolToString(m.SourceNot.ValueBool()),
+		},
+		Destination: natDNatEndpoint{
+			Network: m.DestinationNet.ValueString(),
+			Port:    m.DestinationPort.ValueString(),
+			Not:     opnsense.BoolToString(m.DestinationNot.ValueBool()),
+		},
+		Target:      m.Target.ValueString(),
+		LocalPort:   m.LocalPort.ValueString(),
+		Log:         opnsense.BoolToString(m.Log.ValueBool()),
+		Description: m.Description.ValueString(),
+		Categories:  categoriesStr,
 	}
 }
 
@@ -109,12 +114,12 @@ func (m *NatPortForwardResourceModel) fromAPI(_ context.Context, a *natPortForwa
 	m.Interface = types.StringValue(string(a.Interface))
 	m.IPProtocol = types.StringValue(string(a.IPProtocol))
 	m.Protocol = types.StringValue(string(a.Protocol))
-	m.SourceNet = types.StringValue(a.SourceNetwork)
-	m.SourcePort = types.StringValue(a.SourcePort)
-	m.SourceNot = types.BoolValue(opnsense.StringToBool(a.SourceNot))
-	m.DestinationNet = types.StringValue(a.DestNetwork)
-	m.DestinationPort = types.StringValue(a.DestPort)
-	m.DestinationNot = types.BoolValue(opnsense.StringToBool(a.DestNot))
+	m.SourceNet = types.StringValue(a.Source.Network)
+	m.SourcePort = types.StringValue(a.Source.Port)
+	m.SourceNot = types.BoolValue(opnsense.StringToBool(a.Source.Not))
+	m.DestinationNet = types.StringValue(a.Destination.Network)
+	m.DestinationPort = types.StringValue(a.Destination.Port)
+	m.DestinationNot = types.BoolValue(opnsense.StringToBool(a.Destination.Not))
 	m.Target = types.StringValue(a.Target)
 	m.LocalPort = types.StringValue(a.LocalPort)
 	m.Log = types.BoolValue(opnsense.StringToBool(a.Log))
