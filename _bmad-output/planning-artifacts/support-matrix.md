@@ -1,12 +1,13 @@
 ---
 title: Provider Support Matrix
-date: 2026-06-02
+date: 2026-09-28
 author: BMad PM
 status: current
 inputs:
   - prd.md
   - core-config-gap-analysis.md
   - feature-complete-roadmap.md
+  - provider-management-roadmap-2026-09-28.md
   - repository implementation inventory
 ---
 
@@ -84,6 +85,8 @@ Data-source parity is tracked in [data-source-parity-plan.md](data-source-parity
 | Data-source parity | Add read-only data sources for the 15 supported singleton/sensitive special-case resources that do not yet have data-source counterparts. |
 | Documentation | Fill missing resource templates for generated docs, expand composition examples, and keep the provider index support matrix current. |
 | Release hardening | Keep release workflow, Registry manifest, changelog, and provider docs verified for subsequent patch/minor releases. |
+| Interface assignment/IP settings | Prototype against OPNsense `master` or snapshot only after release probe exists; move to Supported only after the expanded assignment API lands in a stable release branch/tag and acceptance proof passes. |
+| Competitive positioning | Refresh README/Registry positioning, `browningluke/opnsense` parity guidance, and adoption examples. |
 
 ## Needs Research
 
@@ -91,7 +94,7 @@ Data-source parity is tracked in [data-source-parity-plan.md](data-source-parity
 |---|---|
 | Kea | DHCPv4 option and Kea DDNS are present in OPNsense `master` source but absent from `stable/25.7` as of the 2026-06-18 source recheck; move to Coming only after live re-probe confirms target-release availability. |
 | System / HA | HASync configuration needs request/response shape research because current `Hasync.xml` uses dynamic `JsonKeyValueStoreField` `syncitems`; HASync status `services`/`version` are data-source candidates after live validation, while service operations are action candidates only after product/framework decision. |
-| Interfaces | OPNsense `master` now contains an emerging `interfaces/assignment` API backed by `NetworkInterface`, but as of 2026-06-12 it is absent from `stable/26.1`, absent from published interface API docs, missing ACL coverage, and does not cover IP configuration or PPPoE. Move only after target-release availability and durable semantics are verified. |
+| Interfaces | OPNsense `master` now contains an expanded `interfaces/assignment` API backed by `NetworkInterface`, including address settings and apply staging, but as of the 2026-09-28 release check it was absent from `stable/26.7` and checked tags through `26.7.4` / `27.1.a`. Move stable support only after target-release availability and durable semantics are verified. |
 
 Source NAT is already supported as `opnsense_firewall_nat_outbound`. Unbound forward is already supported as `opnsense_unbound_domain_override`.
 
@@ -101,7 +104,7 @@ Confirmed blockers and the maintenance workflow are documented publicly in [`doc
 
 | Resource/domain | Reason | Action |
 |---|---|---|
-| Interface base assignment / IP config / PPPoE | No stable OPNsense API in current target release; `master` assignment API evidence is not yet target-release support and does not cover IP config or PPPoE. | Track and test OPNsense PR #8436, generated API docs, ACL coverage, and `stable/*` branch availability. |
+| Interface base assignment / IP config / PPPoE | No stable OPNsense API in current target release; `master` has the expanded assignment API, but release support is still gated. PPPoE scope remains unverified. | Track `stable/*` branch/tag availability, generated API docs, ACL coverage, assignment `set_item`/`reconfigure` behavior, and PPPoE semantics. |
 | Gateway group | No stable target-release gateway-group API; `master` has model-only `GatewayGroups` evidence, but published docs list no endpoint, no API controller was found, and checked `stable/26.1` model paths returned 404. | Track generated API docs, `stable/*` branch availability, API controllers, ACL/menu entries, and model semantics; candidate upstream MVC API contribution if absent. |
 | System general settings | No stable target-release durable settings API; `core/system` is action/status-only and `core/initial_setup` is wizard-only with broad side effects. | Watch OPNsense System Settings MVC roadmap, generated API docs, controllers/models, ACL/menu entries, and stable get/set semantics. |
 

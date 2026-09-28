@@ -1,6 +1,6 @@
 ---
 title: Post-v0.1.0 Epic Plan
-date: 2026-06-02
+date: 2026-09-28
 author: BMad PM
 status: current
 inputs:
@@ -8,11 +8,12 @@ inputs:
   - feature-complete-roadmap.md
   - core-config-gap-analysis.md
   - support-matrix.md
+  - provider-management-roadmap-2026-09-28.md
 ---
 
 # Post-v0.1.0 Epic Plan
 
-The first provider version is published. Post-release work should focus on data-source parity, public documentation quality, remaining verified resource gaps, and upstream-blocked transparency.
+The first provider version is published. Completed post-release work closed the original data-source parity, Registry docs, verified gap, and HAProxy/ACME migration tracks. The next management focus is release-gated OPNsense assignment API adoption, complete coverage positioning, and v1 credibility.
 
 ## Epic 25B: Data Source Parity
 
@@ -77,9 +78,43 @@ Goal: close the specific gaps that block migrating a real multi-domain OPNsense 
 
 **Recommended build order:** 29.1 → 29.2 → 29.4 → 29.3 → 29.5 (independent) → 29.6 (capstone). 29.3 wants 29.4's `cert_ref_id`; 29.6 depends on 29.1–29.4.
 
+## Epic 30: OPNsense Assignment API Adoption
+
+Goal: safely adopt the expanded upstream `api/interfaces/assignment/*` API after it lands in a stable OPNsense release. The September 2026 upstream PR detour proved the separate `address_settings` endpoint is not the right direction; provider work should consume the upstream assignment API instead.
+
+| Story | Status | File |
+|---|---|---|
+| 30.1 Track OPNsense Assignment API Release | backlog | `_bmad-output/implementation-artifacts/30-1-track-opnsense-assignment-api-release.md` |
+| 30.2 Prototype Interface Assignment/IP Resource Against OPNsense Master | backlog | `_bmad-output/implementation-artifacts/30-2-prototype-interface-assignment-ip-resource.md` |
+| 30.3 Update Interface Support Matrix and Public Blocker Docs | backlog | `_bmad-output/implementation-artifacts/30-3-update-interface-support-matrix.md` |
+
+## Epic 31: Provider Completeness, Positioning, and Migration
+
+Goal: make this provider complete enough to be the default provider choice for a given appliance, then convert that completeness into user trust and adoption.
+
+| Story | Status | File |
+|---|---|---|
+| 31.0 Complete Provider Coverage Audit | backlog | `_bmad-output/implementation-artifacts/31-0-complete-provider-coverage-audit.md` |
+| 31.1 Complete Provider Positioning README and Registry Pass | backlog | `_bmad-output/implementation-artifacts/31-1-complete-provider-positioning-docs.md` |
+| 31.2 Existing Provider Migration Guide | backlog | `_bmad-output/implementation-artifacts/31-2-existing-provider-migration-guide.md` |
+| 31.3 Example Stacks for Adoption | backlog | `_bmad-output/implementation-artifacts/31-3-example-stacks-for-adoption.md` |
+
+## Epic 32: Release Credibility and v1 Readiness
+
+Goal: make releases feel intentionally tested, versioned, and ready for production adoption.
+
+| Story | Status | File |
+|---|---|---|
+| 32.1 Acceptance Test Proof Artifact | backlog | `_bmad-output/implementation-artifacts/32-1-acceptance-test-proof-artifact.md` |
+| 32.2 Provider Preflight and Version Diagnostics | backlog | `_bmad-output/implementation-artifacts/32-2-provider-preflight-version-diagnostics.md` |
+| 32.3 v1 Stability Roadmap | backlog | `_bmad-output/implementation-artifacts/32-3-v1-stability-roadmap.md` |
+
 ## Recommended Sequence
 
-1. Treat 25B.1, 25B.2, 25B.3, 26.1, 26.2, 26.3, 27.1, 27.2, 27.3, 27.4, 28.1, 28.2, and 28.3 as completed historical work.
-2. Implement Story 28.4 only after controlled live validation confirms safe tunables CRUD/reconfigure behavior on the target appliance.
-3. Keep data-source parity, tunables safety validation, and upstream-blocked review as follow-up maintenance until new evidence changes their classification.
-4. Epic 29 unblocks the HAProxy/ACME edge migration; build in the order above. Re-verify each OPNsense endpoint/field shape against a live 25.x appliance during implementation (the Dev Notes flag the fields to confirm).
+1. Treat Epics 25B through 29 as completed or historical unless a regression appears.
+2. Start with Story 30.1 so release timing and support-matrix language are evidence-backed.
+3. Use Story 30.2 to prototype against OPNsense `master` or snapshot only; do not declare stable support until Story 30.1 finds a released OPNsense version.
+4. Run Story 30.3 before or alongside implementation so public docs stop describing the interface API as a generic old blocker.
+5. Run Story 31.0 before migration-positioning work so coverage gaps are audited as product completeness work, not buried in docs.
+6. Follow with Stories 31.1 and 31.2 to make the Registry/README story match the provider's actual coverage advantage.
+7. Add Story 32.1 acceptance proof before treating v1 positioning as credible.
