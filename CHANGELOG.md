@@ -2,6 +2,14 @@
 
 All notable changes to the OPNsense Terraform provider are documented here, following the [Terraform provider changelog format](https://developer.hashicorp.com/terraform/plugin/best-practices/versioning).
 
+## 0.5.0 (Unreleased)
+
+FEATURES:
+
+* **New Resource:** `opnsense_kea_dhcpv4_settings`
+* **New Resource:** `opnsense_kea_dhcpv4_subnet`
+* **New Resource:** `opnsense_kea_dhcpv4_reservation`
+
 ## 0.4.4 (September 24, 2026)
 
 BUG FIXES:

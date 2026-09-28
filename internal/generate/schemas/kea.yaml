@@ -36,6 +36,25 @@ resources:
       - {name: FirewallRules, tf: firewall_rules, json: fwrules, type: bool, default: "true", desc: "Automatically add firewall rules for the service."}
       - {name: DHCPSocketType, tf: dhcp_socket_type, json: dhcp_socket_type, type: selectmap, default: "raw", desc: "DHCP socket type: raw or udp."}
 
+  - name: dhcpv4_settings
+    go_type: DHCPv4Settings
+    type_name: kea_dhcpv4_settings
+    title: the Kea DHCPv4 general settings
+    kind: singleton
+    id: kea-dhcpv4
+    reconfigure: /api/kea/service/reconfigure
+    monad: dhcpv4.general
+    endpoints:
+      get: /api/kea/dhcpv4/get
+      set: /api/kea/dhcpv4/set
+    fields:
+      - {name: Enabled, tf: enabled, json: enabled, type: bool, default: "false", desc: "Enable the Kea DHCPv4 server."}
+      - {name: ManualConfig, tf: manual_config, json: manual_config, type: bool, default: "false", desc: "Manage the Kea config file manually (disable GUI management)."}
+      - {name: Interfaces, tf: interfaces, json: interfaces, type: selectmaplist, desc: "Interfaces the DHCPv4 server listens on."}
+      - {name: ValidLifetime, tf: valid_lifetime, json: valid_lifetime, type: int, default: "4000", desc: "Default lease valid lifetime in seconds."}
+      - {name: FirewallRules, tf: firewall_rules, json: fwrules, type: bool, default: "true", desc: "Automatically add firewall rules for the service."}
+      - {name: DHCPSocketType, tf: dhcp_socket_type, json: dhcp_socket_type, type: selectmap, default: "raw", desc: "DHCP socket type: raw or udp."}
+
   - name: ha_peer
     go_type: HAPeer
     type_name: kea_ha_peer
