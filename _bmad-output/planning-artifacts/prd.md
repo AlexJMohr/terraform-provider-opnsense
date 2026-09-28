@@ -314,7 +314,7 @@ Resources are built in dependency and usage-priority order. Each tier delivers i
 - Community contribution workflow (CONTRIBUTING guide, PR templates, issue templates)
 - Published modules on Terraform Registry
 - Version-aware endpoint mapping for OPNsense major release compatibility
-- Upstream collaboration for blocked domains: interface assignment/IP config/PPPoE, gateway group, and system general settings. Story 5.1 revalidated interface status on 2026-06-12: OPNsense `master` has an emerging assignment API, but target `stable/26.1` does not include it and IP config/PPPoE remain uncovered. Story 5.6 revalidated gateway-group status on 2026-06-14: `master` has model-only evidence, but no stable target-release API/controller. Story 5.7 created the system general settings revalidation gate on 2026-06-14: current evidence is action/status or setup-wizard-only, not a durable settings API.
+- Upstream collaboration and release tracking for blocked domains: interface assignment/IP config/PPPoE, gateway group, and system general settings. The 2026-09-28 release check found OPNsense `master` has the expanded assignment API with address fields and apply staging, but checked stable/tag targets through `stable/26.7`, `26.7.4`, and `27.1.a` do not include the full API; PPPoE remains unverified. Story 5.6 revalidated gateway-group status on 2026-06-14: `master` has model-only evidence, but no stable target-release API/controller. Story 5.7 created the system general settings revalidation gate on 2026-06-14: current evidence is action/status or setup-wizard-only, not a durable settings API.
 - Terraform resource skeleton generator (extend code gen to produce four-file resource boilerplate from YAML schema)
 
 ### Risk Mitigation Strategy

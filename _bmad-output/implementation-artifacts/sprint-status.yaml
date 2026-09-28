@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-03-18
-last_updated: 2026-06-18
+last_updated: 2026-09-28
 project: terraform-provider-opnsense
 project_key: NOKEY
 tracking_system: file-system
@@ -81,7 +81,7 @@ development_status:
 
   # Epic 5: Core Infrastructure
   epic-5: in-progress
-  5-1-interface-resource: done          # BLOCKED upstream — target stable/26.1 still lacks base interface assignment/IP config/PPPoE API; master has emerging assignment API requiring future recheck
+  5-1-interface-resource: done          # RELEASE-GATED — master has expanded assignment/IP API, but checked stable/tag targets through 26.7.4/27.1.a lack it; Epic 30 tracks adoption
   5-2-vlan-resource: done
   5-3-virtual-ip-resource: done
   5-4-static-route-resource: done
@@ -281,3 +281,27 @@ development_status:
   29-5-ddclient-daemon-settings-resource: done   # NEW — supersedes wrongly-cancelled 9.5; /dyndns/settings singleton (enabled/daemon_delay/backend)
   29-6-multi-domain-edge-composition-and-migration-validation: done   # CAPSTONE — depends on 29.1-29.4; proves the edge is migratable
   epic-29-retrospective: optional
+
+  # === PROVIDER MANAGEMENT ROADMAP (provider-management-roadmap-2026-09-28.md) ===
+
+  # Epic 30: OPNsense Assignment API Adoption
+  epic-30: backlog
+  30-1-track-opnsense-assignment-api-release: backlog
+  30-2-prototype-interface-assignment-ip-resource: backlog
+  30-3-update-interface-support-matrix: backlog
+  epic-30-retrospective: optional
+
+  # Epic 31: Provider Completeness, Positioning, and Migration
+  epic-31: backlog
+  31-0-complete-provider-coverage-audit: backlog
+  31-1-complete-provider-positioning-docs: backlog
+  31-2-existing-provider-migration-guide: backlog
+  31-3-example-stacks-for-adoption: backlog
+  epic-31-retrospective: optional
+
+  # Epic 32: Release Credibility and v1 Readiness
+  epic-32: backlog
+  32-1-acceptance-test-proof-artifact: backlog
+  32-2-provider-preflight-version-diagnostics: backlog
+  32-3-v1-stability-roadmap: backlog
+  epic-32-retrospective: optional
