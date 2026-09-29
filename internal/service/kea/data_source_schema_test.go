@@ -21,11 +21,75 @@ func TestDataSources_schemaIDs(t *testing.T) {
 	t.Parallel()
 
 	constructors := DataSources()
-	if len(constructors) != 3 {
-		t.Fatalf("expected 3 Kea data sources, got %d", len(constructors))
+	if len(constructors) != 5 {
+		t.Fatalf("expected 5 Kea data sources, got %d", len(constructors))
 	}
 	for _, constructor := range constructors {
 		assertRequiredID(t, constructor())
+	}
+}
+
+func TestDHCPv4SubnetDataSource_read(t *testing.T) {
+	t.Parallel()
+
+	const id = "subnet4-uuid"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet || r.URL.Path != dhcpv4SubnetReqOpts.GetEndpoint+"/"+id {
+			t.Fatalf("unexpected request %s %s", r.Method, r.URL.Path)
+		}
+		_, _ = w.Write([]byte(`{"subnet4":{"subnet":"192.168.40.0/24","allocator":{"random":{"value":"Random","selected":1}},"pools":"192.168.40.100-192.168.40.254","match-client-id":"1","ping_check":"0","description":"guest"}}`))
+	}))
+	t.Cleanup(server.Close)
+
+	client := testClient(t, server.URL)
+	ds := newDHCPv4SubnetDataSource()
+	configureDataSource(t, ds, client)
+	schema := dataSourceSchema(t, ds)
+	req := datasource.ReadRequest{Config: modelConfig(t, schema, &DHCPv4SubnetResourceModel{ID: types.StringValue(id)})}
+	resp := datasource.ReadResponse{State: tfsdk.State{Schema: schema}}
+
+	ds.Read(context.Background(), req, &resp)
+	if resp.Diagnostics.HasError() {
+		t.Fatalf("read diagnostics: %v", resp.Diagnostics)
+	}
+	var state DHCPv4SubnetResourceModel
+	if diags := resp.State.Get(context.Background(), &state); diags.HasError() {
+		t.Fatalf("state diagnostics: %v", diags)
+	}
+	if state.Subnet.ValueString() != "192.168.40.0/24" || state.Pools.ValueString() != "192.168.40.100-192.168.40.254" {
+		t.Fatalf("unexpected state: %#v", state)
+	}
+}
+
+func TestDHCPv4ReservationDataSource_read(t *testing.T) {
+	t.Parallel()
+
+	const id = "reservation4-uuid"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet || r.URL.Path != dhcpv4ReservationReqOpts.GetEndpoint+"/"+id {
+			t.Fatalf("unexpected request %s %s", r.Method, r.URL.Path)
+		}
+		_, _ = w.Write([]byte(`{"reservation":{"subnet":{"subnet4-uuid":{"value":"192.168.40.0/24","selected":1}},"ip_address":"192.168.40.8","hw_address":"00:11:22:33:44:55","client_id":"","hostname":"ps5","description":"tfacc"}}`))
+	}))
+	t.Cleanup(server.Close)
+
+	client := testClient(t, server.URL)
+	ds := newDHCPv4ReservationDataSource()
+	configureDataSource(t, ds, client)
+	schema := dataSourceSchema(t, ds)
+	req := datasource.ReadRequest{Config: modelConfig(t, schema, &DHCPv4ReservationResourceModel{ID: types.StringValue(id)})}
+	resp := datasource.ReadResponse{State: tfsdk.State{Schema: schema}}
+
+	ds.Read(context.Background(), req, &resp)
+	if resp.Diagnostics.HasError() {
+		t.Fatalf("read diagnostics: %v", resp.Diagnostics)
+	}
+	var state DHCPv4ReservationResourceModel
+	if diags := resp.State.Get(context.Background(), &state); diags.HasError() {
+		t.Fatalf("state diagnostics: %v", diags)
+	}
+	if state.SubnetID.ValueString() != "subnet4-uuid" || state.HWAddress.ValueString() != "00:11:22:33:44:55" {
+		t.Fatalf("unexpected state: %#v", state)
 	}
 }
 
