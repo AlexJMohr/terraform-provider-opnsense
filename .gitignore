@@ -97,3 +97,9 @@ test/.vagrant/
 test/acceptance-results/
 test/bin/
 test/.vagrant/
+.bmad-loop/runs/
+.bmad-loop/cache/
+.bmad-loop/policy.toml
+_bmad/render/
+# Machine-local relay path written by `bmad-loop init --cli grok`
+.grok/hooks/
