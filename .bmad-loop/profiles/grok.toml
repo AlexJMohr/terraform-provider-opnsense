@@ -1,0 +1,36 @@
+# xAI Grok CLI (>= 1.0.41). Adapted from the unmerged built-in profile at
+# https://github.com/Sallvainian/bmad-loop/blob/feature/grok-profile/src/bmad_loop/data/profiles/grok.toml
+# (bmad-code-org/bmad-loop#837). That branch is 0.12.0 and is not on main;
+# this file is a project profile for the installed 0.13.0 orchestrator.
+#
+# Grok reads project hooks from any JSON file in .grok/hooks/, in the same
+# `hooks` object shape as Claude Code's settings, so the claude-settings-json
+# dialect applies unchanged. Project hooks run only in a trusted folder:
+# until `/hooks-trust` has been run once, they silently never fire.
+#
+# Skills: .agents/skills, where the BMad installer puts grok's skills.
+# Prompt: the codex "${skill} ... use subagents as needed" phrasing, which
+# the fork live-verified on unattended grok runs.
+#
+# Dropped versus the fork, because 0.13.0 cannot honor them:
+# - usage_parser "grok-updates" and transcript_template are not in this
+#   build (no token-budget accounting for grok stages).
+# - SessionEnd is left unmapped. 0.13.0 scores every admitted SessionEnd as
+#   a crash, and grok fires SessionEnd for each subagent session. Mapping it
+#   without the fork's subagentType filter kills a session that outlived a
+#   subagent. Real crashes fall through to the window-death fallback, same
+#   as codex. session_id_flag is also unset: a pin that does not match the
+#   hook payload's session_id would drop the main session's Stop.
+name = "grok"
+binary = "grok"
+prompt_template = "Use the ${skill} skill now, and use subagents as needed: {args}"
+bypass_args = ["--always-approve"]
+model_flag = "--model"
+usage_parser = "none"
+skill_tree = ".agents/skills"
+first_run_note = "run `grok` once in the project and run /hooks-trust to trust project hooks (untrusted hooks never execute)"
+
+[hooks]
+dialect = "claude-settings-json"
+config_path = ".grok/hooks/bmad-loop.json"
+events = { SessionStart = "SessionStart", Stop = "Stop", PreCompact = "PreCompact" }
